@@ -1,13 +1,10 @@
 from django import forms
-from .models import Answer, Question, QuestionSet
+from .models import User
 
 
-# class QuestionForm(forms.ModelForm):
-#     answers = forms.ModelMultipleChoiceField(queryset=Answer.objects.filter(question=self.question_id))
-#     class Meta:
-#         model = Question
-#         fields = ['question']
-#
-#     def __init__(self,question_id):
-#         self.question_id = question_id
-#         super(QuestionForm).__init__()
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'password']
+        widgets = {'class': 'form-control'}
+
