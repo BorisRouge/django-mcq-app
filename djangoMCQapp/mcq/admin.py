@@ -2,9 +2,14 @@ from django.contrib import admin
 from .models import Question, Answer, QuestionSet
 # Register your models here.
 
+class QuestionInline(admin.StackedInline):
+    model = Question
+
+class AnswerInline(admin.StackedInline):
+    model = Answer
 
 class QuestionAdmin(admin.ModelAdmin):
-    pass
+    inlines = [AnswerInline]
 
 
 class AnswerAdmin(admin.ModelAdmin):
@@ -12,7 +17,7 @@ class AnswerAdmin(admin.ModelAdmin):
 
 
 class QuestionSetAdmin(admin.ModelAdmin):
-    pass
+    inlines = [QuestionInline]
 
 
 admin.site.register(Question, QuestionAdmin)
