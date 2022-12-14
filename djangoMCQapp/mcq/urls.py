@@ -8,5 +8,6 @@ urlpatterns = [
     path('catalog', views.Catalog.as_view(), name='catalog'),
     path('submit_answer/<int:question_id>', views.SubmitAnswer.as_view(),
          name='submit_answer'),
+    path('result/<int:question_set>', views.ResultView.as_view(), name='result'),
 
 ]

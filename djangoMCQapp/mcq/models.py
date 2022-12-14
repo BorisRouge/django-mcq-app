@@ -4,8 +4,11 @@ from django.urls import reverse
 # Create your models here.
 
 
-class User(User):
+class Users(User):
     pass
+
+
+
 
 
 class QuestionSet(models.Model):
@@ -57,25 +60,45 @@ class Answer(models.Model):
 class UserAnswer(models.Model):
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+
+
+    def get_next_question(self):
+        answered_questions = Question.objects.filter(
+            useranswer__user=self.user)
+        question_set = Question.objects.filter(
+            question_set=self.question.question_set)
+        next_question = question_set.difference(answered_questions).first()
+        if next_question is not None:
+            return next_question.get_absolute_url()
+        return None
 
     @staticmethod
-    def next_question(question_id, user):
-        # question_set = QuestionSet.objects.get(question__id=question_id)
-        # #questions = question_set.get_questions()
-        # questions =Question.objects.filter(
-        #     question_set=question_set).exclude(=question_id)
-        # print(questions)
-        # index = questions.index(Question.objects.get(question_id))
-        # try:
-        #     return questions[index+1].get_absolute_url()
-        # except IndexError:
-        #     return UserAnswer.get_result()
-    Question.objects.filter(pk=answer__question__id)
+    def get_result(request):
+        answered_questions = Question.objects.filter(
+            useranswer__user=request.user)
+
+        pass # what the url should be? /results/<int: question_set>
 
 
-    @staticmethod
-    def get_result(self):
-        pass
 
-# class TestResult ???
-#   user = models.ForeignKey(User, on_delete=models.CASCADE)
+class TestResult(models.Model): # Updated when retaken?
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    question_set = models.ForeignKey(QuestionSet, on_delete=models.CASCADE)
+    total_answers = models.IntegerField(default=0)
+    correct_answers = models.IntegerField(default=0)
+    ratio = models.IntegerField(default=0)
+
+    def set_results(self):
+        self.total_answers = Answer.objects.filter(
+            question__question_set=self.question_set,
+            correct=True).count()
+        self.correct_answers = UserAnswer.objects.filter(
+            question__question_set=self.question_set,
+            user=self.user,
+            answer__correct=True).count()
+        self.ratio = self.total_answers/self.correct_answers
+
+    def get_absolute_url(self):
+        return reverse('result', kwargs={'question_set': self.question_set.id})
+
