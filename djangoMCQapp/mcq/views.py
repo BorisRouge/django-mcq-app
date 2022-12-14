@@ -54,8 +54,14 @@ class QuestionView(View):
 
     def get(self, request, question_id):
         question = get_object_or_404(Question, pk=question_id)
+        test_result = TestResult.objects.filter(
+            user=request.user,
+            question_set=question.question_set)
+        if test_result.exists():
+            print(test_result)
+            return redirect(test_result.first().get_absolute_url())
         context = {'question': question,
-                   'answers': question.answers(),}
+                   'answers': question.answers(), }
         return render(request, 'mcq/question.html', context)
 
     def post(self, request):
@@ -67,10 +73,10 @@ class SubmitAnswer(View):
     def get(self, request, question_id):
         answers = request.GET.getlist('answer')
         for answer_id in answers:
-            user_answer = UserAnswer(
-                answer_id=answer_id, user_id=request.user.id,
-                question_id=question_id)
-            user_answer.save()  # TODO: Check uniqueness and switch to next if existing. If query.exists().
+            user_answer, created = UserAnswer.objects.get_or_create(
+                answer_id=answer_id,
+                user_id=request.user.id,
+                question_id=question_id)  # TODO: Check uniqueness and switch to next if existing. If query.exists().
         result = user_answer.get_next_question()
         if result is not None:
             return redirect(result)  # Might want to change where this method belongs.
@@ -84,7 +90,7 @@ class SubmitAnswer(View):
         return redirect(test_result.get_absolute_url())
 
 
-class ResultView(View):
+class ResultView(View): # TODO: Make the template.
     def get(self, request, question_set):
         test_result = get_object_or_404(TestResult,
                                         user=request.user,

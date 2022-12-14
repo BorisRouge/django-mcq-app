@@ -64,6 +64,8 @@ class UserAnswer(models.Model):
 
 
     def get_next_question(self):
+        """Возвращает URL следующего в наборе вопроса
+        или None, если вопросов больше нет."""
         answered_questions = Question.objects.filter(
             useranswer__user=self.user)
         question_set = Question.objects.filter(
