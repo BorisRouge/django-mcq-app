@@ -1,15 +1,17 @@
-<div class="w-50 p-3" >
+<div class="d-flex justify-content-center align-items-center" >
     {% load static %}
-<link rel="stylesheet" href='{% static "/css/mdb.min.css" %}' >
-<div>
-    <h6 class="mb-5">Добро пожаловать, {{ user}}</h6>
-    <h5 class="mb-3">Выберите набор тестов:</h5>
-    <ul class="list-group list-group-light">
-        <div class="w-50 p-3">
-{% for set in question_sets %}
-<a href="{{set.get_initial_question}}" type="button" class="btn btn-secondary">{{set}}</a>
-{% endfor %}
-            </div>
+  <link rel="stylesheet" href='{% static "/css/mdb.min.css" %}' >
+    <div>
+        <h6 class="p-3 text-center bg-white">Добро пожаловать, {{ user}}</h6>
+        <h5 class="p-3 text-center bg-white">Выберите набор тестов:</h5>
+        <div class="p-3 text-center bg-white">
+            <ul class="list-group list-group-light">
+                <div class="align-items-center">
+                    {% for set in question_sets %}
+                    <a href="{{set.get_initial_question}}" type="button" class="btn btn-secondary">{{set}}</a>
+                    {% endfor %}
+                </div>
     </ul>
-    </div>
-    </div>
+            </div>
+        </div>
+</div>

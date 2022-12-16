@@ -8,9 +8,6 @@ class Users(User):
     pass
 
 
-
-
-
 class QuestionSet(models.Model):
     name = models.TextField(max_length=256, default='Набор тестов')
 
@@ -28,8 +25,7 @@ class QuestionSet(models.Model):
 class Question(models.Model):
     question = models.TextField(max_length=256)
     question_set = models.ForeignKey(QuestionSet, on_delete=models.CASCADE)
-    #TODO: Priority in a set?
-    #TODO: FSM or something like it
+
     def __str__(self):
         return self.question
 
@@ -38,10 +34,7 @@ class Question(models.Model):
 
     def answers(self):
         return Answer.objects.filter(question=self.id)
-        #TODO: might be redundant, see
-        # https://docs.djangoproject.com/en/4.1/topics/db/queries/#lookups-that-span-relationships.
-        # OR the question set should have a lookup method
-        # to get the absolute url of the initial question.
+
 
 class Answer(models.Model):
     answer = models.CharField(max_length=128)
@@ -62,7 +55,6 @@ class UserAnswer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
-
     def get_next_question(self):
         """Возвращает URL следующего в наборе вопроса
         или None, если вопросов больше нет."""
@@ -75,14 +67,6 @@ class UserAnswer(models.Model):
             return next_question.get_absolute_url()
         return None
 
-    @staticmethod
-    def get_result(request):
-        answered_questions = Question.objects.filter(
-            useranswer__user=request.user)
-
-        pass # what the url should be? /results/<int: question_set>
-
-
 
 class TestResult(models.Model): # Updated when retaken?
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -92,14 +76,14 @@ class TestResult(models.Model): # Updated when retaken?
     ratio = models.IntegerField(default=0)
 
     def set_results(self):
-        self.total_answers = Answer.objects.filter(
+        self.total_answers = UserAnswer.objects.filter(
             question__question_set=self.question_set,
-            correct=True).count()
+            user=self.user).count()
         self.correct_answers = UserAnswer.objects.filter(
             question__question_set=self.question_set,
             user=self.user,
             answer__correct=True).count()
-        self.ratio = self.total_answers/self.correct_answers
+        self.ratio = (self.correct_answers/self.total_answers)*100
 
     def get_absolute_url(self):
         return reverse('result', kwargs={'question_set': self.question_set.id})

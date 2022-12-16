@@ -1,3 +1,52 @@
-{{total_answers}}
-{{correct_answers}}
-{{ratio}}
+
+  <div class="container">
+    <div class="p-3 text-left bg-white">
+      <form action="/catalog" method="GET">
+        <button class="btn btn-secondary" type="submit"> Назад </button>
+      </form>
+    </div>
+      <div>
+        <h5 class="p-3 text-center bg-white">Результаты теста</h5>
+        <hr class="hr" />
+      </div>
+      {% load static %}
+       <link rel="stylesheet" href='{% static "/css/mdb.min.css" %}' >
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+    <div class="d-flex justify-content-center align-items-center">
+
+        <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+
+        <script>
+        var xValues = ["Правильные ответы","Неправильные ответы"];
+        var yValues = [{{correct_answers}}, {{incorrect_answers}}];
+        var barColors = [
+          "#00aba9",
+          "#b91d47",
+          "#2b5797",
+          "#e8c3b9",
+          "#1e7145"
+        ];
+
+        new Chart("myChart", {
+          type: "doughnut",
+          data: {
+            labels: xValues,
+            datasets: [{
+              backgroundColor: barColors,
+              data: yValues
+            }]
+          },
+          options: {
+            title: {
+              display: false,
+              text: "Результаты теста"
+            }
+          }
+        });
+        </script>
+    </div>
+    <div class="p-3 text-center bg-white">
+      <p>{{ratio}}% правильных ответов</p>
+    </div>

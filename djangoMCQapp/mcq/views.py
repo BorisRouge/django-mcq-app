@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.views import View
-from .models import Answer, Question, QuestionSet, Users, UserAnswer, TestResult
+from .models import Question, QuestionSet, Users, UserAnswer, TestResult
 from .forms import UserForm
 
 
@@ -13,15 +13,21 @@ class Register(View):
                       context={"form": form})
 
     def post(self, request):
-        email = request.POST.get('email')
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = Users.objects.create_user(username, email, password)
-        user.set_password(password)
-        user.save()
-        messages.success(request, "Registration successful")
-        login(request, user)
-        return redirect ("catalog")
+        form = UserForm(request.POST)
+
+        if form.is_valid:
+            form.save()
+            # email = form['email'],
+            # username = form['username']
+            # password = form['password']
+            # user = Users.objects.create_user(username,email, password)
+            # user.set_password(password)
+            # user.save()
+            # login(request, user)
+            return redirect ("catalog")
+        else:
+            messages.error(request, 'Что-то пошло не так')
+            return redirect('register')
 
 
 class Login(View):
@@ -31,15 +37,19 @@ class Login(View):
                       context={"form": form})
 
     def post(self, request):
-        print(list(request.POST.items()))
-        email = request.POST.get('email')
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        print(email, password)
-        user = authenticate(email=email, password=password)
-        if user is not None: # TODO: actions if the credentials are invalid
-            login(request, user)
-            return redirect("catalog")
+        form = UserForm(request.POST)
+        if form.is_valid:
+            user = authenticate(
+                email=form['email'],
+                password=form['password'])
+            if user is not None:  # TODO: actions if the credentials are invalid
+                login(request, user)
+                return redirect("catalog")
+            else:
+                messages.error(request, 'Адрес или пароль не найдены')
+                return redirect('login')
+
+
 
 
 class Catalog(View):
@@ -58,15 +68,10 @@ class QuestionView(View):
             user=request.user,
             question_set=question.question_set)
         if test_result.exists():
-            print(test_result)
             return redirect(test_result.first().get_absolute_url())
         context = {'question': question,
                    'answers': question.answers(), }
         return render(request, 'mcq/question.html', context)
-
-    def post(self, request):
-        pass  # TODO: gotta have a user first. The user must have the archive of tests.
-              # TODO: back to catalog button
 
 
 class SubmitAnswer(View):
@@ -76,7 +81,7 @@ class SubmitAnswer(View):
             user_answer, created = UserAnswer.objects.get_or_create(
                 answer_id=answer_id,
                 user_id=request.user.id,
-                question_id=question_id)  # TODO: Check uniqueness and switch to next if existing. If query.exists().
+                question_id=question_id)
         result = user_answer.get_next_question()
         if result is not None:
             return redirect(result)  # Might want to change where this method belongs.
@@ -90,13 +95,13 @@ class SubmitAnswer(View):
         return redirect(test_result.get_absolute_url())
 
 
-class ResultView(View): # TODO: Make the template.
+class ResultView(View):
     def get(self, request, question_set):
         test_result = get_object_or_404(TestResult,
                                         user=request.user,
                                         question_set=question_set)
         context = {
-            'total_answers': test_result.total_answers,
+            'incorrect_answers': test_result.total_answers-test_result.correct_answers,
             'correct_answers': test_result.correct_answers,
             'ratio': test_result.ratio,
         }
