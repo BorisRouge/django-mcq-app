@@ -18,31 +18,43 @@ class Register(View):
     def post(self, request):
         form = UserForm(request.POST)
 
-        if form.is_valid:
-            form.save() # TODO: won't authenticate new user
-            return redirect("catalog")
+        if form.is_valid():
+            form.save()
+            user = authenticate(
+                email=form['email'],
+                password=form['password'])
+            print(f"form:{form['email']},{form['password']}, "
+                  f"user: {user}")
+            return redirect('register')
+            if user is not None:  # TODO: actions if the credentials are invalid
+                login(request, user)
+                return redirect("catalog")
         else:
             messages.error(request, 'Что-то пошло не так')
             return redirect('register')
 
 class Login(View):
     def get(self, request):
-        form = UserForm()
+        form = LoginForm()
         return render(request, "mcq/login.html",
                       context={"form": form})
 
     def post(self, request):
-        form = UserForm(request.POST)
-        if form.is_valid:
+        form = LoginForm(request.POST)
+        if form.is_valid():
             user = authenticate(
-                email=form['email'],
-                password=form['password'])
+                email=form.cleaned_data['username'],
+                password=form.cleaned_data['password'])
+            print(f"form:{form['username']},{form['password']}, "
+                  f"user: {user}")
             if user is not None:  # TODO: actions if the credentials are invalid
                 login(request, user)
                 return redirect("catalog")
             else:
                 messages.error(request, 'Адрес или пароль не найдены')
                 return redirect('login')
+        print(form, dir(form), form.errors)
+        return redirect('login')
 # TODO: Login won't log in with valid credentials.
 
 

@@ -28,9 +28,9 @@
   {% csrf_token %}
   <!-- Email input -->
   <div class="form-outline mb-4">
-    <input type="email" id="form2Example1" class="form-control" value="email" name="email"/>
-    <label class="form-label" for="form2Example1">Email address</label>
-    {{form.email.errors}}
+    <input type="text" id="form2Example1" class="form-control" value="username" name="username"/>
+    <label class="form-label" for="form2Example1">Username</label>
+    {{form.username.errors}}
   </div>
 
   <!-- Password input -->

@@ -13,6 +13,6 @@ class UserForm(forms.ModelForm):
 class LoginForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['email', 'password']
+        fields = ['username', 'password']
         widgets = {'class': "form-control",
                    'id': "form2Example1"}
