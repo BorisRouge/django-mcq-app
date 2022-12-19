@@ -1,9 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
+from django.views.generic.edit import CreateView, FormView
 from django.views import View
 from .models import Question, QuestionSet, Users, UserAnswer, TestResult
-from .forms import UserForm
+from .forms import UserForm, LoginForm
+
+
 
 
 class Register(View):
@@ -16,19 +19,11 @@ class Register(View):
         form = UserForm(request.POST)
 
         if form.is_valid:
-            form.save()
-            # email = form['email'],
-            # username = form['username']
-            # password = form['password']
-            # user = Users.objects.create_user(username,email, password)
-            # user.set_password(password)
-            # user.save()
-            # login(request, user)
-            return redirect ("catalog")
+            form.save() # TODO: won't authenticate new user
+            return redirect("catalog")
         else:
             messages.error(request, 'Что-то пошло не так')
             return redirect('register')
-
 
 class Login(View):
     def get(self, request):
@@ -48,8 +43,7 @@ class Login(View):
             else:
                 messages.error(request, 'Адрес или пароль не найдены')
                 return redirect('login')
-
-
+# TODO: Login won't log in with valid credentials.
 
 
 class Catalog(View):

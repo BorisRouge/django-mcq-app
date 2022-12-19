@@ -6,16 +6,13 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['email', 'username', 'password']
-        widgets = {'class':"form-control"}
+        widgets = {'class': "form-control",
+                   'id': "form2Example1"}
 
 
-class CreateUserForm(forms.Form):
-    username = forms.CharField(label='Create your username:', max_length=50)
-    password = forms.CharField(label='Create your password:', max_length=256,
-                               widget=forms.PasswordInput(render_value=False))
-
-
-class LoginForm(forms.Form):
-    username = forms.CharField(label='Enter your username:', max_length=50)
-    password = forms.CharField(label='Enter your password:', max_length=256,
-                               widget=forms.PasswordInput(render_value=True))
+class LoginForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'password']
+        widgets = {'class': "form-control",
+                   'id': "form2Example1"}

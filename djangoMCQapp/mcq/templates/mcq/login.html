@@ -30,12 +30,14 @@
   <div class="form-outline mb-4">
     <input type="email" id="form2Example1" class="form-control" value="email" name="email"/>
     <label class="form-label" for="form2Example1">Email address</label>
+    {{form.email.errors}}
   </div>
 
   <!-- Password input -->
   <div class="form-outline mb-4">
     <input type="password" id="form2Example2" class="form-control" value="password" name="password"/>
     <label class="form-label" for="form2Example2">Password</label>
+    {{form.password.errors}}
   </div>
 
   <!-- 2 column grid layout for inline styling -->
@@ -61,7 +63,7 @@
 </form>
 
 {% for message in messages %}
-    <div class="alert alert-primary">
+    <div class="alert alert-danger">
            {{ message }}
     </div>
 {% endfor %}
