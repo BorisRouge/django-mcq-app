@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.views.generic.edit import CreateView, FormView
 from django.views import View
@@ -9,7 +10,7 @@ from .forms import UserForm, LoginForm
 
 
 
-class Register(View):
+class Register(View):  # TODO: https://stackoverflow.com/questions/10372877/how-to-create-a-user-in-django
     def get(self, request):
         form = UserForm()
         return render(request, "mcq/register.html",
@@ -19,43 +20,48 @@ class Register(View):
         form = UserForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            form.save()  # TODO: https://stackoverflow.com/questions/26112779/saving-hashed-version-of-user-password-in-django-form-not-working
             user = authenticate(
                 email=form['email'],
                 password=form['password'])
             print(f"form:{form['email']},{form['password']}, "
                   f"user: {user}")
             return redirect('register')
-            if user is not None:  # TODO: actions if the credentials are invalid
+            if user is not None:
                 login(request, user)
                 return redirect("catalog")
         else:
             messages.error(request, 'Что-то пошло не так')
             return redirect('register')
 
-class Login(View):
-    def get(self, request):
-        form = LoginForm()
-        return render(request, "mcq/login.html",
-                      context={"form": form})
+# class Login1(View):
+#     def get(self, request):
+#         form = LoginForm()
+#         return render(request, "mcq/login.html",
+#                       context={"form": form})
+#
+#     def post(self, request):
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             user = authenticate(
+#                 email=form.cleaned_data['username'],
+#                 password=form.cleaned_data['password'])
+#             print(f"form:{form.cleaned_data['username']},{form.cleaned_data['password']}, "
+#                   f"user: {user}")
+#             if user is not None:  # TODO: actions if the credentials are invalid
+#                 login(request, user)
+#                 return redirect("catalog")
+#             else:
+#                 messages.error(request, 'Адрес или пароль не найдены')
+#                 return redirect('login')
+#         print(form, dir(form), form.errors)
+#         return redirect('login')
+# TODO: A user with that username already exists.
 
-    def post(self, request):
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            user = authenticate(
-                email=form.cleaned_data['username'],
-                password=form.cleaned_data['password'])
-            print(f"form:{form['username']},{form['password']}, "
-                  f"user: {user}")
-            if user is not None:  # TODO: actions if the credentials are invalid
-                login(request, user)
-                return redirect("catalog")
-            else:
-                messages.error(request, 'Адрес или пароль не найдены')
-                return redirect('login')
-        print(form, dir(form), form.errors)
-        return redirect('login')
-# TODO: Login won't log in with valid credentials.
+
+class Login(LoginView):
+    template_name = 'mcq/login.html'
+    next_page = 'mcq/catalog.html'
 
 
 class Catalog(View):

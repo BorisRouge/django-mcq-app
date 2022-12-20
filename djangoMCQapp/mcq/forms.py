@@ -10,9 +10,10 @@ class UserForm(forms.ModelForm):
                    'id': "form2Example1"}
 
 
-class LoginForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['username', 'password']
-        widgets = {'class': "form-control",
-                   'id': "form2Example1"}
+class LoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={'class': 'form-control'}))
+     # {'class': "form-control",
+     #               'id': "form2Example1"}
